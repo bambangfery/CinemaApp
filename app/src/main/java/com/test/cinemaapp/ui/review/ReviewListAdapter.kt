@@ -10,10 +10,12 @@ import com.test.cinemaapp.R
 import com.test.cinemaapp.data.model.ReviewMovie
 import com.test.cinemaapp.util.Constants
 import kotlinx.android.synthetic.main.item_list_review.view.*
+import kotlinx.android.synthetic.main.progress_loading.view.*
 
 class ReviewListAdapter(private var resultsReview: ArrayList<ReviewMovie?>):
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     lateinit var mcontext: Context
+    var isLast: Boolean = false
 
     class ReviewMoviesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
@@ -38,6 +40,10 @@ class ReviewListAdapter(private var resultsReview: ArrayList<ReviewMovie?>):
             resultsReview.removeAt(resultsReview.size - 1)
             notifyItemRemoved(resultsReview.size)
         }
+    }
+
+    fun isLastItem() {
+        isLast = true
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -75,5 +81,8 @@ class ReviewListAdapter(private var resultsReview: ArrayList<ReviewMovie?>):
             holder.itemView.author.text = resultsReview[position]?.author
             holder.itemView.content.text = resultsReview[position]?.content
         }
+
+        if (holder.itemViewType == Constants.VIEW_TYPE_LOADING && isLast)
+            holder.itemView.progressbar.visibility = View.GONE
     }
 }

@@ -1,5 +1,6 @@
 package com.test.cinemaapp.ui.detailsmovie
 
+import android.content.Context
 import com.test.cinemaapp.data.model.DetailsMovieResponse
 import com.test.cinemaapp.data.model.ReviewMovieResponse
 import com.test.cinemaapp.data.model.TrailerMovieResponse
@@ -18,8 +19,8 @@ class DetailsMovieContract {
     }
 
     interface Presenter: BaseContract.Presenter<View>{
-        fun getDetailsMovie(movieId : String)
-        fun getTrailersMovie(movieId : String)
-        fun getReviewMovie(movieId : String)
+        fun getDetailsMovie(context: Context, movieId : String)
+        fun getTrailersMovie(context: Context, movieId : String)
+        fun getReviewMovie(context: Context, movieId : String)
     }
 }

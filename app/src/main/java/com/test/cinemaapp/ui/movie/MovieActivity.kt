@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
@@ -30,7 +31,6 @@ class MovieActivity : AppCompatActivity() , MovieContract.View{
 
     var page: Int = 1
     var totalPages: Int = 1
-    var isFirst: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +40,7 @@ class MovieActivity : AppCompatActivity() , MovieContract.View{
         injectDependency()
         presenter.attach(this)
         progressbar.visibility = View.VISIBLE
-        presenter.getMovie(genreId!!,page)
+        presenter.getMovie(this,genreId!!,page)
 
     }
 
@@ -64,14 +64,13 @@ class MovieActivity : AppCompatActivity() , MovieContract.View{
         itemsswipetorefresh.setColorSchemeColors(Color.WHITE)
         itemsswipetorefresh.setOnRefreshListener {
             page = 1
-            isFirst = 1
             resultsMovie.results.clear()
             adapterResultsMovies.addData(resultsMovie.results)
             adapterResultsMovies.notifyDataSetChanged()
             Handler().postDelayed(
                 {
                     progressbar.visibility = View.VISIBLE
-                    presenter.getMovie(genreId,page)
+                    presenter.getMovie(this,genreId,page)
                     itemsswipetorefresh.isRefreshing = false
                 },1000
             )
@@ -81,11 +80,7 @@ class MovieActivity : AppCompatActivity() , MovieContract.View{
         scrollListener.setOnLoadMoreListener(object :
             OnLoadMoreListener {
             override fun onLoadMore() {
-                if (isFirst==1){
-                    isFirst=0
-                }else{
-                    loadMoreData()
-                }
+                loadMoreData()
             }
         })
         movieRv.addOnScrollListener(scrollListener)
@@ -101,26 +96,38 @@ class MovieActivity : AppCompatActivity() , MovieContract.View{
                 adapterResultsMovies.notifyDataSetChanged()
             }
         } else {
-            adapterResultsMovies.removeLoadingView()
+            adapterResultsMovies.isLastItem()
         }
     }
 
     private fun loadMoreData() {
-        adapterResultsMovies.addLoadingView()
         loadMoreResultsMovies = ArrayList()
-        if (page <= totalPages)
+        if (page < totalPages){
+            adapterResultsMovies.addLoadingView()
             page = page.inc()
-        presenter.getMovieList(genreId,page)
+            presenter.getMovieList(this,genreId,page)
+        }else{
+            adapterResultsMovies.isLastItem()
+        }
 
     }
 
     override fun onDomainError(msg: String) {
         progressbar.visibility = View.GONE
+        Toast.makeText(this,msg, Toast.LENGTH_LONG).show()
         Log.d("Error : ",msg)
     }
 
     override fun onMovieListError(msg: String) {
+        Toast.makeText(this,msg,Toast.LENGTH_LONG).show()
+        adapterResultsMovies.isLastItem()
         Log.d("Error : ",msg)
+    }
+
+    override fun noResult() {
+        progressbar.visibility = View.GONE
+        itemsswipetorefresh.visibility = View.GONE
+        noResult.visibility = View.VISIBLE
     }
 
     private fun injectDependency() {

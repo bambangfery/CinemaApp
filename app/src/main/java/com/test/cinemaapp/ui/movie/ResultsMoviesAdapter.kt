@@ -3,6 +3,7 @@ package com.test.cinemaapp.ui.movie
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +14,13 @@ import com.test.cinemaapp.data.model.ResultsMovies
 import com.test.cinemaapp.ui.detailsmovie.DetailsMovieActivity
 import com.test.cinemaapp.util.Constants
 import kotlinx.android.synthetic.main.item_movie.view.*
+import kotlinx.android.synthetic.main.progress_loading.view.*
 
 
 class ResultsMoviesAdapter(private var resultsMovies: ArrayList<ResultsMovies?>):
     RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     lateinit var mcontext: Context
+    var isLast: Boolean = false
 
     class ResultsMoviesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
@@ -32,6 +35,7 @@ class ResultsMoviesAdapter(private var resultsMovies: ArrayList<ResultsMovies?>)
         //add loading item
         Handler().post {
             resultsMovies.add(null)
+            Log.d("size11111 ",resultsMovies.size.toString())
             notifyItemInserted(resultsMovies.size - 1)
         }
     }
@@ -42,6 +46,10 @@ class ResultsMoviesAdapter(private var resultsMovies: ArrayList<ResultsMovies?>)
             resultsMovies.removeAt(resultsMovies.size - 1)
             notifyItemRemoved(resultsMovies.size)
         }
+    }
+
+    fun isLastItem() {
+        isLast = true
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -90,5 +98,8 @@ class ResultsMoviesAdapter(private var resultsMovies: ArrayList<ResultsMovies?>)
                 mcontext.startActivity(detailsMovieIntent)
             }
         }
+
+        if (holder.itemViewType == Constants.VIEW_TYPE_LOADING && isLast)
+            holder.itemView.progressbar.visibility = View.GONE
     }
 }

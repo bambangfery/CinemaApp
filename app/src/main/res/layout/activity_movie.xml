@@ -48,4 +48,13 @@
         android:layout_gravity="center_horizontal|center_vertical"
         android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/noResult"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="No result data"
+        android:textSize="16sp"
+        android:visibility="gone"/>
+
 </LinearLayout>

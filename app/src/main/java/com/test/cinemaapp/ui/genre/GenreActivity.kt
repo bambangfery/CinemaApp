@@ -3,6 +3,7 @@ package com.test.cinemaapp.ui.genre
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.test.cinemaapp.R
 import com.test.cinemaapp.data.model.Genres
@@ -24,7 +25,7 @@ class GenreActivity : AppCompatActivity(), GenreContract.View {
         injectDependency()
         presenter.attach(this)
         progressbar.visibility = View.VISIBLE
-        presenter.getGenres()
+        presenter.getGenres(this)
     }
 
     override fun onDomainSuccess(genres: ArrayList<Genres>) {
@@ -41,6 +42,7 @@ class GenreActivity : AppCompatActivity(), GenreContract.View {
 
     override fun onDomainError(msg: String) {
         progressbar.visibility = View.GONE
+        Toast.makeText(this,msg,Toast.LENGTH_LONG).show()
         Log.d("Error : ", msg)
     }
 

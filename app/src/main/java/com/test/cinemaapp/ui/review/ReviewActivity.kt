@@ -1,11 +1,12 @@
 package com.test.cinemaapp.ui.review
 
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,10 +17,7 @@ import com.test.cinemaapp.di.component.DaggerActivityComponent
 import com.test.cinemaapp.di.module.ActivityModule
 import com.test.cinemaapp.util.OnLoadMoreListener
 import com.test.cinemaapp.util.RecyclerViewLoadMoreScroll
-import kotlinx.android.synthetic.main.activity_movie.*
 import kotlinx.android.synthetic.main.activity_see_all_review.*
-import kotlinx.android.synthetic.main.activity_see_all_review.itemsswipetorefresh
-import kotlinx.android.synthetic.main.activity_see_all_review.progressbar
 import javax.inject.Inject
 
 class ReviewActivity : AppCompatActivity() , ReviewContract.View{
@@ -33,7 +31,6 @@ class ReviewActivity : AppCompatActivity() , ReviewContract.View{
     var movieId = ""
     var page: Int = 1
     var totalPages: Int = 1
-    var isFirst: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +39,7 @@ class ReviewActivity : AppCompatActivity() , ReviewContract.View{
         injectDependency()
         presenter.attach(this)
         progressbar.visibility = View.VISIBLE
-        presenter.getReview(movieId,page)
+        presenter.getReview(this,movieId,page)
     }
 
     override fun onDomainSuccess(reviewMovieResponse: ReviewMovieResponse) {
@@ -66,14 +63,13 @@ class ReviewActivity : AppCompatActivity() , ReviewContract.View{
         itemsswipetorefresh.setColorSchemeColors(Color.WHITE)
         itemsswipetorefresh.setOnRefreshListener {
             page = 1
-            isFirst = 1
             reviewMovieResponse.results.clear()
             adapterReviewMovies.addData(reviewMovieResponse.results)
             adapterReviewMovies.notifyDataSetChanged()
             Handler().postDelayed(
                 {
                     progressbar.visibility = View.VISIBLE
-                    presenter.getReview(movieId,page)
+                    presenter.getReview(this,movieId,page)
                     itemsswipetorefresh.isRefreshing = false
                 },1000
             )
@@ -83,27 +79,27 @@ class ReviewActivity : AppCompatActivity() , ReviewContract.View{
         scrollListener.setOnLoadMoreListener(object :
             OnLoadMoreListener {
             override fun onLoadMore() {
-                if (isFirst==1){
-                    isFirst=0
-                }else{
-                    loadMoreData()
-                }
+                loadMoreData()
             }
         })
         reviewRv.addOnScrollListener(scrollListener)
     }
 
     private fun loadMoreData() {
-        adapterReviewMovies.addLoadingView()
         loadMoreReviewMovies = ArrayList()
-        if (page <= totalPages)
+        if (page <= totalPages){
+            adapterReviewMovies.addLoadingView()
             page = page.inc()
-        presenter.getReviewList(movieId,page)
+            presenter.getReviewList(this,movieId,page)
+        }else{
+            adapterReviewMovies.isLastItem()
+        }
 
     }
 
     override fun onDomainError(msg: String) {
         progressbar.visibility = View.GONE
+        Toast.makeText(this,msg, Toast.LENGTH_LONG).show()
     }
 
     override fun onReviewListSuccess(reviewMovie: ArrayList<ReviewMovie?>) {
@@ -112,15 +108,17 @@ class ReviewActivity : AppCompatActivity() , ReviewContract.View{
             adapterReviewMovies.removeLoadingView()
             adapterReviewMovies.addData(loadMoreReviewMovies)
             scrollListener.setLoaded()
-            movieRv.post {
+            reviewRv.post {
                 adapterReviewMovies.notifyDataSetChanged()
             }
         } else {
-            adapterReviewMovies.removeLoadingView()
+            adapterReviewMovies.isLastItem()
         }
     }
 
     override fun onReviewListError(msg: String) {
+        Toast.makeText(this,msg,Toast.LENGTH_LONG).show()
+        adapterReviewMovies.isLastItem()
         Log.d("Error : ",msg)
     }
 

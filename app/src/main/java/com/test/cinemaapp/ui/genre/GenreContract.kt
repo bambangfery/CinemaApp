@@ -1,5 +1,6 @@
 package com.test.cinemaapp.ui.genre
 
+import android.content.Context
 import com.test.cinemaapp.data.model.Genres
 import com.test.cinemaapp.ui.base.BaseContract
 
@@ -14,6 +15,6 @@ class GenreContract {
     }
 
     interface Presenter:BaseContract.Presenter<View>{
-        fun getGenres()
+        fun getGenres(context: Context)
     }
 }

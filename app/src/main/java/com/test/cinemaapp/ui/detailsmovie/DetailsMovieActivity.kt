@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,7 +37,7 @@ class DetailsMovieActivity : AppCompatActivity() , DetailsMovieContract.View{
         movieId = intent.getStringExtra("movieId")!!
         injectDependency()
         presenter.attach(this)
-        presenter.getDetailsMovie(movieId)
+        presenter.getDetailsMovie(this,movieId)
 
     }
 
@@ -67,11 +68,12 @@ class DetailsMovieActivity : AppCompatActivity() , DetailsMovieContract.View{
         }
 
         overview.text = details.overview
-        presenter.getReviewMovie(movieId)
-        presenter.getTrailersMovie(movieId)
+        presenter.getReviewMovie(this,movieId)
+        presenter.getTrailersMovie(this,movieId)
     }
 
     override fun onDomainError(msg: String) {
+        Toast.makeText(this,msg, Toast.LENGTH_LONG).show()
         Log.d("Error : ",msg)
     }
 
@@ -89,6 +91,7 @@ class DetailsMovieActivity : AppCompatActivity() , DetailsMovieContract.View{
 
     override fun onTrailerError(msg: String) {
         youtubePlayerView.visibility = View.INVISIBLE
+        Toast.makeText(this,msg,Toast.LENGTH_LONG).show()
         Log.d("Error : ",msg)
     }
 
