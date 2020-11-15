@@ -35,7 +35,6 @@ class ResultsMoviesAdapter(private var resultsMovies: ArrayList<ResultsMovies?>)
         //add loading item
         Handler().post {
             resultsMovies.add(null)
-            Log.d("size11111 ",resultsMovies.size.toString())
             notifyItemInserted(resultsMovies.size - 1)
         }
     }
